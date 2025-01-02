@@ -1,121 +1,270 @@
-<br/>
+# Laravel Ecommerce Application Deployment On Amazon EC2 Instance
 
-## Table Of Contents
+## Step 1:
 
-- [About The Project](#about-the-project)
-- [Features](#features)
-- [Demo Video](#demo_video)
-- [Built With](#built-with)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Contributing](#contributing)
-  - [Creating A Pull Request](#creating-a-pull-request)
-- [License](#license)
+This guide provides step-by-step instructions to deploy a Laravel e-commerce application on an Amazon EC2 instance.
 
-## About The Project
+---
 
-It is a backend system for an E-Commerce built with the Laravel framework, provides a simple and secure platform for online buying and selling. With features like user authentication, and product management.
+## **Prerequisites**
 
-## Features
-- User authentication with different levels of access (admin, vendor)
-- User login/signup using Google or creating an account
-- Admin privileges for managing the entire system
-- Vendor capabilities to manage their own shop
-- CRUD operations for managing brands, coupons, products, categories, and subcategories
-- Automatic coupon deactivation using events in MySQL ( No need to do it manually )
+1. **Amazon EC2 Instance**:
+    - Ubuntu Server (20.04 or later recommended).
+    - Security group configured with inbound rules for HTTP (port 80), HTTPS (port 443), 8000 (php port 8000)and SSH (port 22).
+2. **Domain Name** (optional):
+    - Configure your domain's DNS to point to the EC2 public IP.
+3. **Software Installed on EC2**:
+    - PHP (8.1 or later)
+    - Composer
+    - Apache
+    - MySQL
 
-### Screenshots
-![screenshot_1](https://github.com/MUSTAFA-Hamzawy/Multi-vendor-eCommerce-laravel/assets/72188665/ed55f8ab-62ec-4bf6-86ac-d1a46b164841)
+---
 
+## **Step 1: Update and Prepare the Server**
 
-<hr />
+1. **Update the package list:**
+    
+    ```
+    sudo apt update && sudo apt upgrade -y
+    ```
+    
+2. **Install essential tools:**
+    
+    ```
+    sudo apt install -y unzip curl git
+    ```
+    
 
-![screenshot_2](https://github.com/MUSTAFA-Hamzawy/Multi-vendor-eCommerce-laravel/assets/72188665/40906698-aa10-48dc-b2ea-0e83eb48d5ca)
+---
 
+## **Step 2: Install PHP and Required Extensions**
 
-### Database Diagram
+1. **Add PHP repository and install PHP:**
+    
+    ```
+    sudo apt install -y software-properties-common
+    sudo add-apt-repository ppa:ondrej/php -y
+    sudo apt update
+    sudo apt install php8.1 php8.1-cli php8.1-fpm php8.1-mbstring php8.1-xml php8.1-curl php8.1-zip php8.1-bcmath php8.1-intl php8.1-mysql php8.1-soap php8.1-gd -y
+    ```
+    
+2. **Verify PHP installation:**
+    
+    ```
+    php -v
+    ```
+    
+3. **Install Supervisor:**
+    
+    ```
+    curl -sS https://getcomposer.org/installer | php
+    sudo mv composer.phar /usr/local/bin/composer
+    composer -v
+    
+    composer global require laravel/installer
+    ```
+    
+4. **Install Node JS and NPM:**
+    
+    ```
+    sudo apt install nodejs npm -y
+    ```
+    
 
-![db_diagram](https://github.com/MUSTAFA-Hamzawy/Multi-vendor-eCommerce-laravel/assets/72188665/11bf6490-056b-4356-ad33-3d382c48cb6c)
+## **Step 3: Install MySQL**
 
+1. **Install MySQL Server:**
+    
+    ```
+    sudo apt install -y mysql-server
+    ```
+    
+2. **Secure MySQL installation and root password setup:**
+    
+    ```
+    sudo mysql_secure_installation
+    sudo mysql
+    ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'laravel@123';
+    FLUSH PRIVILEGES;
+    ```
+    
+3. **Create a database for Laravel:**
+    
+    ```
+    sudo mysql -u root -p
+    CREATE DATABASE laravel_ecommerce;
+    CREATE USER 'laravel_user'@'%' IDENTIFIED BY 'secure_password';
+    GRANT ALL PRIVILEGES ON laravel_ecommerce.* TO 'laravel_user'@'%';
+    FLUSH PRIVILEGES;
+    EXIT;
+    ```
+    
 
+---
 
-## Demo Video
-Video : <a href="https://www.youtube.com/watch?v=goU6Rim3VOY" id="demo_video"> Youtube Link </a>
+## **Step 4: Install Apache or Nginx**
 
+1. **Install Apache:**
+    
+    ```
+    sudo apt install -y apache2
+    ```
+    
+2. **Enable required modules:**
+    
+    ```
+    sudo a2enmod rewrite
+    sudo a2enmod proxy
+    sudo a2enmod proxy_fcgi
+    sudo systemctl restart apache2
+    ```
+    
+3. **Verify Apache configuration:**
+    
+    ```
+    sudo apache2ctl -t
+    sudo systemctl enable apache2
+    sudo systemctl restart apache2
+    ```
+    
 
+---
 
+## **Step 5: Deploy Laravel Application**
 
-https://github.com/MUSTAFA-Hamzawy/Multi-vendor-eCommerce-laravel/assets/72188665/eef57cea-6e74-43b1-8c26-58efd52e72b8
-
-
-
-
-
-## Built With
-
-* PHP
-* Laravel
-* MySql
-* Ajax
-* Composer
-
-## Getting Started
-
-To get a local copy up and running follow these simple steps.
-
-### Prerequisites
-
-* install php 8 or above
-* install apache2 ( or any local serve )
-* install mysql
-* install composer
-
-### Installation
-
-1. Clone the repo
-
-```sh
-    git clone https://github.com/MUSTAFA-Hamzawy/Multi-vendor-eCommerce-laravel.git
-```
-
-2. Import the database file from the folder "SQL File"
-3. Make your own copy of the .env file
-```sh
-    cp .env.example .env
- 
-    DB_DATABASE= your db name here
-    DB_USERNAME= your db username
-    DB_PASSWORD= your password 
-```
-
-4. Install dependecies
-
-```sh
+1. **Clone your Laravel application from Git:**
+    
+    ```
+    cd /var/www/
+    sudo mkdir Laravel-vendor-Commerce
+    sudo chown -R ubuntu:ubuntu Laravel-vendor-Commerce
+    sudo git clone https://github.com/shivm04/Laravel-vendor-Commerce.git Laravel-vendor-Commerce
+    ```
+    
+2. **Set correct permissions:**
+    
+    ```
+    sudo chown -R ubuntu:ubuntu/var/www/Laravel-vendor-Commerce
+    sudo chmod -R www-data:ubuntu /var/www/Laravel-vendor-Commerce/storage /var/www/Laravel-vendor-Commerce/bootstrap/cache
+    sudo chmod -R 775 /var/www/Laravel-vendor-Commerce/storage /var/www/Laravel-vendor-Commerce/bootstrap/cache
+    ```
+    
+3. **Install dependencies and Import database:**
+    
+    ```
+    cd Sql\ File/
+    cat eCommerce.sql | mysql -u root -p laravel_ecommerce
     composer install
-```
-5. Generate a key
-```sh
+    ```
+    
+4. **Configure environment file:**
+    
+    ```
+    cp .env.example .env
+    vi .env
+    ```
+    
+    Update the database credentials and other necessary configurations in `.env`.
+    
+5. **Generate the application key:**
+    
+    ```
     php artisan key:generate
-```
-6. Start Running
-```sh
-    php artisan serve
-```
+    ```
+    
+6. **Test the application:**
+    
+    ```
+    php artisan serve --host=0.0.0.0 --port=8000
+    ```
+    
 
-## Contributing
+---
 
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-- If you have suggestions for adding or removing projects, feel free to [open an issue](https://github.com/MUSTAFA-Hamzawy/Multi-vendor-eCommerce-laravel/issues/new) to discuss it, or
--  Directly create a pull request after you edit the files with necessary changes.
+## **Step 6: Configure Apache for Laravel**
 
-### Creating A Pull Request
+1. **Create a new Apache configuration file:**
+    
+    ```
+    sudo vi /etc/apache2/sites-available/Laravel-vendor-Commerce.conf
+    ```
+    
+    Add the following content:
+    
+    ```
+    <VirtualHost *:80>
+        ServerName laravel.cloudpita.com    
+        DocumentRoot /var/www/Laravel-vendor-Commerce/public
+    
+        <Directory /var/www/Laravel-vendor-Commerce/public>
+            Options +FollowSymlinks
+            AllowOverride All
+            Require all granted
+                    <FilesMatch \.php$>
+                    SetHandler "proxy:unix:/run/php/php8.1-fpm.sock|fcgi://localhost"
+                    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+                    SetEnvIf Content-Type "(.*)" HTTP_CONTENT_TYPE=$1
+                    SetEnvIf Accept "(.*)" HTTP_ACCEPT=$1
+            </FilesMatch>
+        </Directory>
+    
+        ErrorLog ${APACHE_LOG_DIR}/Laravel-vendor-Commerce-error.log
+        CustomLog ${APACHE_LOG_DIR}/Laravel-vendor-Commerce-access.log combined
+    </VirtualHost>
+    ```
+    
+2. **Enable the site and restart Apache:**
+    
+    ```
+    sudo a2ensite Laravel-vendor-Commerce
+    sudo systemctl reload apache2
+    ```
+    
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+---
 
-## License
-See [LICENSE](https://github.com/MUSTAFA-Hamzawy/Multi-vendor-eCommerce-laravel/blob/main/LICENSE) for more information.
+## **Step 7: Configure Domain Name (Optional)**
+
+Update your domain's DNS to point to the EC2 public IP. You can manage this through your domain registrar's control panel.
+
+---
+
+## **Step 8: Install SSL Certificate (Optional)**
+
+1. **Install Certbot:**
+    
+    ```
+    sudo apt install -y certbot python3-certbot-apache
+    ```
+    
+2. **Obtain and configure SSL certificate:**
+    
+    ```
+    sudo certbot --apache -d laravel.cloudpita.com
+    ```
+    
+
+---
+
+## **Step 9: Verify the Deployment**
+
+1. **Access the application via the public IP or domain name:**
+    
+    ```
+    http://laravel.cloudpita.com
+    https://laravel.cloudpita.com
+    
+    Admin Username :- hamzawy1
+    Admin Password :- admin1234
+    ```
+    
+2. **Check Laravel logs and apache logs for issues:**
+    
+    ```
+    tail -f /var/www/Laravel-vendor-Commerce/storage/logs/laravel.log
+    tail -f /var/log/apache2/Laravel-vendor-Commerce-access.log
+    ```
+    
+
+---
