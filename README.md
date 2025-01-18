@@ -145,8 +145,8 @@ This guide provides step-by-step instructions to deploy a Laravel e-commerce app
 2. **Set correct permissions:**
     
     ```
-    sudo chown -R ubuntu:ubuntu/var/www/Laravel-vendor-Commerce
-    sudo chmod -R www-data:ubuntu /var/www/Laravel-vendor-Commerce/storage /var/www/Laravel-vendor-Commerce/bootstrap/cache
+    sudo chown -R ubuntu:ubuntu /var/www/Laravel-vendor-Commerce
+    sudo chown -R www-data:ubuntu /var/www/Laravel-vendor-Commerce/storage /var/www/Laravel-vendor-Commerce/bootstrap/cache
     sudo chmod -R 775 /var/www/Laravel-vendor-Commerce/storage /var/www/Laravel-vendor-Commerce/bootstrap/cache
     ```
     
