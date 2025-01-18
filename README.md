@@ -94,7 +94,7 @@ This guide provides step-by-step instructions to deploy a Laravel e-commerce app
     ```
     sudo mysql -u root -p
     CREATE DATABASE laravel_ecommerce;
-    CREATE USER 'laravel_user'@'%' IDENTIFIED BY 'secure_password';
+    CREATE USER 'laravel_user'@'%' IDENTIFIED BY 'laravel@123';
     GRANT ALL PRIVILEGES ON laravel_ecommerce.* TO 'laravel_user'@'%';
     FLUSH PRIVILEGES;
     EXIT;
@@ -156,7 +156,7 @@ This guide provides step-by-step instructions to deploy a Laravel e-commerce app
     cd Laravel-vendor-Commerce
     cd Sql\ File/
     cat eCommerce.sql | mysql -u root -p laravel_ecommerce
-    composer install
+    cd ..
     ```
     
 4. **Configure environment file:**
@@ -171,6 +171,7 @@ This guide provides step-by-step instructions to deploy a Laravel e-commerce app
 5. **Generate the application key:**
     
     ```
+    composer install
     php artisan key:generate
     ```
     
