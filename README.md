@@ -153,6 +153,7 @@ This guide provides step-by-step instructions to deploy a Laravel e-commerce app
 3. **Install dependencies and Import database:**
     
     ```
+    cd Laravel-vendor-Commerce
     cd Sql\ File/
     cat eCommerce.sql | mysql -u root -p laravel_ecommerce
     composer install
